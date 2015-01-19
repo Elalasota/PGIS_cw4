@@ -7,9 +7,9 @@
 # This file should be included when you package your plugin.# Mandatory items:
 
 [general]
-name=Prognoza pogody
+name=Pogodynka
 qgisMinimumVersion=2.0
-description=Wtyczka z prognoza pogody
+description=Ta wtyczka pokazuje aktualna pogode.
 version=0.1
 author=Ela Lasota
 email=elcialas@gmail.com

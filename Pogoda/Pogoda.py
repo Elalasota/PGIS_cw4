@@ -3,9 +3,9 @@
 /***************************************************************************
  Pogoda
                                  A QGIS plugin
- Wtyczka z prognoza pogody
+ Ta wtyczka pokazuje aktualna pogode.
                               -------------------
-        begin                : 2015-01-07
+        begin                : 2015-01-18
         git sha              : $Format:%H$
         copyright            : (C) 2015 by Ela Lasota
         email                : elcialas@gmail.com
@@ -25,7 +25,7 @@ from PyQt4.QtGui import QAction, QIcon, QColor, QBrush, QImage, QFileDialog
 # Initialize Qt resources from file resources.py
 import resources_rc
 # Import the code for the dialog
-from Pogoda2_dialog import PogodaDialog
+from Pogoda_dialog import PogodaDialog
 import os.path
 from qgis.core import *
 from qgis.utils import iface
@@ -35,7 +35,8 @@ from datetime import datetime
 from sgmllib import SGMLParser
 import urllib, cStringIO
 from PIL import Image
-from qgis.gui import QgsMapTool, QgsMapToolEmitPoint, QgsMapCanvasItem
+from qgis.gui import QgsMapTool, QgsMapToolEmitPoint, QgsMapCanvasItem, QgsMessageBar
+
 class Pogoda:
     """QGIS Plugin Implementation."""
 
@@ -70,24 +71,11 @@ class Pogoda:
 
         # Declare instance attributes
         self.actions = []
-        self.menu = self.tr(u'&Prognoza pogody')
+        self.menu = self.tr(u'&Pogodynka')
         # TODO: We are going to let the user set this up in a future iteration
         self.toolbar = self.iface.addToolBar(u'Pogoda')
         self.toolbar.setObjectName(u'Pogoda')
-	sciezka=os.path.join(os.path.expanduser("~"), ".qgis2/python/plugins/Pogoda/pogoda.json")
-	sciezkaWoje=os.path.join(os.path.expanduser("~"), ".qgis2/python/plugins/Pogoda/wojewodztwa/wojewodztwa.shp")
-	wektor=QgsVectorLayer(sciezkaWoje, "Wojewodztwa", "ogr")
-	obi=wektor.getFeatures()
-	for obie in obi:
-		self.dlg.lista.addItem(obie.attribute("jpt_nazwa_"))
-	def zaznacz():
-		for i in range(self.dlg.lista.count()):
-			self.dlg.lista.setItemSelected(self.dlg.lista.item(i), True)
-	self.dlg.przycisk.clicked.connect(zaznacz)
-	def zapis():
- 		fileName = QFileDialog.getSaveFileName(self.dlg, "Save File", "/home/untitled.png", "Images (*.png *.xpm *.jpg)");
-		self.dlg.linia.setText(fileName)
-	self.dlg.przycisk_2.clicked.connect(zapis)
+	
     # noinspection PyMethodMayBeStatic
     def tr(self, message):
         """Get the translation for a string using Qt translation API.
@@ -183,7 +171,7 @@ class Pogoda:
         icon_path = ':/plugins/Pogoda/icon.png'
         self.add_action(
             icon_path,
-            text=self.tr(u'Pogodynka'),
+            text=self.tr(u'Sprawdz pogode'),
             callback=self.run,
             parent=self.iface.mainWindow())
 
@@ -192,25 +180,41 @@ class Pogoda:
         """Removes the plugin menu item and icon from QGIS GUI."""
         for action in self.actions:
             self.iface.removePluginMenu(
-                self.tr(u'&Prognoza pogody'),
+                self.tr(u'&Pogodynka'),
                 action)
             self.iface.removeToolBarIcon(action)
 
 
     def run(self):
         """Run method that performs all the real work"""
-	
         # show the dialog
+
+        sciezka=os.path.join(os.path.expanduser("~"), ".qgis2/python/plugins/Pogoda/pogoda.json")
+        sciezkaWoje=os.path.join(os.path.expanduser("~"), ".qgis2/python/plugins/Pogoda/wojewodztwa/wojewodztwa.shp")
+        wektor=QgsVectorLayer(sciezkaWoje, "Wojewodztwa", "ogr")
+        obi=wektor.getFeatures()
+        for obie in obi:
+            self.dlg.lista.addItem(obie.attribute("jpt_nazwa_"))
+        def zaznacz():
+            for i in range(self.dlg.lista.count()):
+                self.dlg.lista.setItemSelected(self.dlg.lista.item(i), True)
+        self.dlg.przycisk.clicked.connect(zaznacz)
+        def zapis():
+            fileName = QFileDialog.getSaveFileName(self.dlg, "Save File", "/home/untitled.shp", "Formaty *.shp *.geojson *.kml (*.shp *.geojson *.kml)")
+            self.dlg.linia.setText(fileName)
+        self.dlg.przycisk_2.clicked.connect(zapis)
         self.dlg.show()
-		
         # Run the dialog event loop
         result = self.dlg.exec_()
-			
         # See if OK was pressed
         if result:
-			
-			sciezka=os.path.join(os.path.expanduser("~"), ".qgis2/python/plugins/Pogoda2/pogoda.json")
-			sciezkaWoje=os.path.join(os.path.expanduser("~"), ".qgis2/python/plugins/Pogoda2/wojewodztwa/wojewodztwa.shp")
+            # Do something useful here - delete the line containing pass and
+            # substitute with your code.
+			plotno=iface.mapCanvas()
+			plotno.clear()
+			plotno.clearCache()
+			sciezka=os.path.join(os.path.expanduser("~"), ".qgis2/python/plugins/Pogoda/pogoda.json")
+			sciezkaWoje=os.path.join(os.path.expanduser("~"), ".qgis2/python/plugins/Pogoda/wojewodztwa/wojewodztwa.shp")
 			wektor=QgsVectorLayer(sciezkaWoje, "Wojewodztwa", "ogr")
 			print wektor.crs().authid()
 			warstwa=QgsVectorLayer("Polygon?index=yes&crs="+wektor.crs().authid(),"Pogoda","memory")
@@ -218,22 +222,17 @@ class Pogoda:
 			pola=wektor.dataProvider().fields()
 			for pole in pola:
 				warstwa.addAttribute(pole)
-				#print pole.typeName()
-			#tablica z miastami
 			miasta=[756135, 3080165, 3083829, 3099434, 763166, 776069, 765876, 759734, 3096472, 3094802, 3090048, 3081368, 3088171, 3102014, 769250, 3093133]
-			#&APPID= 7669678a4b5d0f3d5aa0205a2f0f2fe9
-			adres="http://api.openweathermap.org/data/2.5/group?units=metric&lang=pl&id="
+			adres="http://api.openweathermap.org/data/2.5/group?units=metric&lang=pl&APPID=7669678a4b5d0f3d5aa0205a2f0f2fe9&id="
 			for miasto in miasta:
 				adres=adres+str(miasto)+","
 			print adres
-			#plik z danymi pogodowymi
 			try:
 				f=open(sciezka,'r')
 			except IOError:
 				f=open(sciezka, 'w+')
 			tgj=f.read()
 			f.close()
-
 			try:
 				gej=json.loads(tgj)
 				czasP=gej['data']
@@ -243,25 +242,25 @@ class Pogoda:
 			czasA=calendar.timegm(time.gmtime())
 			roznica=czasA-czasP
 			print roznica, "roznica"
+			bar=iface.messageBar()
 			if roznica>600:
 				f=open(sciezka,'w+')
 				usock = urllib.urlopen(adres)
 				zrodlo = usock.read()
-				usock.close() 	
+				usock.close()
 				try:
 					gj=json.loads(zrodlo)
 				except ValueError:
-					"Brak danych"
+					print "Brak danych"
 				gj['data']=calendar.timegm(time.gmtime())
 				f.write(json.dumps(gj,f))
 				f.close()
 			else:
 				gj=gej
-	    	#print wektor.crs().authid()
+			bar.pushMessage("Dane zaladowano")
 			newCrs=QgsCoordinateReferenceSystem(wektor.crs()) 
 			oldCrs=QgsCoordinateReferenceSystem(4326)
-			transformacja=QgsCoordinateTransform(oldCrs, newCrs) 
-
+			transformacja=QgsCoordinateTransform(oldCrs, newCrs)
 			wektor.startEditing()
 			atrybuty=["Temp", "TempMax", "TempMin", "Cisnienie", "Wilgotnosc", "PredWiatru", "KierWiatru", "Chmury"]
 			for atr in atrybuty:
@@ -269,16 +268,10 @@ class Pogoda:
 					wektor.dataProvider().addAttributes([QgsField(atr, QVariant.Double)])
 			if wektor.dataProvider().fieldNameIndex('DataPob')==-1:
 				wektor.dataProvider().addAttributes([QgsField('DataPob', QVariant.String)])
-
 			wektor.updateFields()
-			plotno=iface.mapCanvas()
-			
 			slownik=gj['list']
-			
 			adresik="http://openweathermap.org/img/w/"
-			#print len(slownik), 'dlugosc'
 			wszystko={}
-
 			for i in range(0, len(slownik)):
 				tmp=slownik[i]['main']['temp']
 				tmpmax=slownik[i]['main']['temp_max']
@@ -291,13 +284,11 @@ class Pogoda:
 				czas=slownik[i]['dt']
 				symbol=slownik[i]['weather'][0]['icon']
 				data2=datetime.fromtimestamp(czas).strftime('%Y-%m-%d %H:%M:%S')
-
 				wartosci=[tmp, tmpmax, tmpmin, cisn, wilg, prw, kw,chm]
 				punkt=QgsPoint(slownik[i]['coord']['lon'],slownik[i]['coord']['lat'])
 				punkt_nowy=transformacja.transform(punkt)
 				for obiekt in wektor.getFeatures():
 					if obiekt.geometry().contains(QgsGeometry.fromPoint(punkt_nowy)):
-						
 						for i in xrange(0, len(atrybuty)):
 							obiekt.setAttribute(atrybuty[i], wartosci[i])
 						obiekt.setAttribute('DataPob',data2)
@@ -305,58 +296,148 @@ class Pogoda:
 						plik = urllib.urlopen(adres2).read()
 						img = QImage()
 						img.loadFromData(plik)
+						#print img.height()
 						wszystko[obiekt.attribute('jpt_nazwa_')]=[symbol, punkt_nowy, img]
-						
+						#print obiekt.attribute('jpt_nazwa_')
 						wektor.updateFeature(obiekt)
 			wektor.commitChanges()
-		
 			rysowanie={}
-			#rysunek.setImage(10)
-			#rysunek.setPoint(punkty)
 			wybrane=self.dlg.lista.selectedItems()
-			
+			pytaj=""
 			for wybor in wybrane:
-				zapytanie=QgsExpression("jpt_nazwa_="+"'"+wybor.text()+"'")
-				zapytanie.prepare(wektor.pendingFields())
-				wojewodztwo=filter(zapytanie.evaluate, wektor.getFeatures())
-				rysowanie[wojewodztwo[0].attribute('jpt_nazwa_')]=wszystko[wojewodztwo[0].attribute('jpt_nazwa_')]
-				warstwa.addFeature(wojewodztwo[0])
+				pytaj=pytaj+"jpt_nazwa_="+"'"+wybor.text()+"' or "
+				rysowanie[wybor.text()]=wszystko[wybor.text()]
+			pytaj=pytaj[:len(pytaj)-4]
+			zapytanie=QgsExpression(pytaj)
+			zapytanie.prepare(wektor.pendingFields())
+			wojewodztwo=filter(zapytanie.evaluate, wektor.getFeatures())
+			wektor.removeSelection()
+			warstwa.addFeatures(wojewodztwo)
 			warstwa.commitChanges()
+			warstwa.removeSelection()
 			QgsMapLayerRegistry.instance().addMapLayer(warstwa)
 			warstwa.updateExtents()
 			zasieg=warstwa.extent()
-			print zasieg.toString()
 			plotno.setExtent(zasieg)
-
 			class RysObraz(QgsMapCanvasItem):
 				def __init__(self,mapCanvas):
 					QgsMapCanvasItem.__init__(self,mapCanvas)
 					self.canvas=mapCanvas
 					self.draw=False
 					self.punkt=QgsPoint(0,0)
-					self.p=QPointF(0.0,0.0)
 				def setObiekt(self, obiekt):
 					self.obiekt=obiekt
 					self.draw=True
 					self.punkt=self.obiekt[1]
 				def paint(self,painter,option,widget):
 					if self.draw:
-						painter.drawImage(self.p,self.obiekt[2])
-						self.setPos(self.toCanvasCoordinates(self.punkt))
+						wys=self.obiekt[2].height()/2
+						szer=self.obiekt[2].width()/2
+						pu=self.toCanvasCoordinates(self.punkt)
+						iks=pu.x()
+						igrek=pu.y()
+						pu.setX(iks-szer)
+						pu.setY(igrek-wys)
+						painter.drawImage(pu,self.obiekt[2])
 						self.canvas.refresh()
-				def updatePosition(self):
-					self.setMapPosition(self.punkt)
-
-				def setMapPosition(self, punkt):
-					self.punkt=punkt
-					self.setPos(self.toCanvasCoordinates(punkt))
-					self.canvas.refresh()
-
 			for klucz in rysowanie:
 				rysunek=RysObraz(plotno)
-				print rysowanie[klucz]
+				#print rysowanie[klucz]
 				rysunek.setObiekt(rysowanie[klucz])
+			sc=self.dlg.linia.displayText()
+			if sc:
+				zap=sc.split('.')
+				format=zap[len(zap)-1]
+				if format=="shp":
+					zapi="ESRI Shapefile"
+				elif format=="geojson":	
+					zapi="GeoJSON"
+				elif format=="kml":
+					zapi="KML"
+				else:
+					zapi=""
+				QgsVectorFileWriter.writeAsVectorFormat(warstwa, sc, "utf-8", warstwa.crs(), zapi)
 			
-
 			print "Zakonczono"
-			plotno.saveAsImage(self.dlg.linia.displayText())
+			
+			symbol_layer = QgsSimpleMarkerSymbolLayerV2()
+			myRangeList = []
+			myLabel='Smierc na miejscu'
+			myMin=-100
+			myMax=-15
+			myColour=QColor('#25437F')
+			mySymbol1=QgsSymbolV2.defaultSymbol(warstwa.geometryType())
+			mySymbol1.setColor(myColour)
+			myRange1=QgsRendererRangeV2(myMin, myMax, mySymbol1, myLabel)
+			myRangeList.append(myRange1)
+
+			myLabel='Pizga jak szatan'
+			myMin=-14.9
+			myMax=0
+			myColour=QColor('#4A85FF')
+			mySymbol2=QgsSymbolV2.defaultSymbol(warstwa.geometryType())
+			mySymbol2.setColor(myColour)
+			myRange2=QgsRendererRangeV2(myMin, myMax, mySymbol2, myLabel)
+			myRangeList.append(myRange2)
+
+
+			myLabel='Troche wieje po lydkach'
+			myMin=0.1
+			myMax=7
+			myColour=QColor('#9BFFE0')
+			mySymbol3=QgsSymbolV2.defaultSymbol(warstwa.geometryType())
+			mySymbol3.setColor(myColour)
+			myRange3=QgsRendererRangeV2(myMin, myMax, mySymbol3, myLabel)
+			myRangeList.append(myRange3)
+
+			myLabel='Wiosna idzie'
+			myMin=7.1
+			myMax=15.0
+			myColour=QColor('#B5FF99')
+			mySymbol4=QgsSymbolV2.defaultSymbol(warstwa.geometryType())
+			mySymbol4.setColor(myColour)
+			myRange4=QgsRendererRangeV2(myMin, myMax, mySymbol4, myLabel)
+			myRangeList.append(myRange4)
+
+			myLabel='Cieplutko sie robi'
+			myMin=15.1
+			myMax=20
+			myColour=QColor('#C3FF45')
+			mySymbol5=QgsSymbolV2.defaultSymbol(warstwa.geometryType())
+			mySymbol5.setColor(myColour)
+			myRange5=QgsRendererRangeV2(myMin, myMax, mySymbol5, myLabel)
+			myRangeList.append(myRange5)
+			
+			myLabel='Idealnie'
+			myMin=20.1
+			myMax=27
+			myColour=QColor('#FBFF46')
+			mySymbol6=QgsSymbolV2.defaultSymbol(warstwa.geometryType())
+			mySymbol6.setColor(myColour)
+			myRange6=QgsRendererRangeV2(myMin, myMax, mySymbol6, myLabel)
+			myRangeList.append(myRange6)
+			
+			myLabel='Patelnia'
+			myMin=27.1
+			myMax=37
+			myColour=QColor('#FF950C')
+			mySymbol7=QgsSymbolV2.defaultSymbol(warstwa.geometryType())
+			mySymbol7.setColor(myColour)
+			myRange7=QgsRendererRangeV2(myMin, myMax, mySymbol7, myLabel)
+			myRangeList.append(myRange7)
+			
+			myLabel='Smierc'
+			myMin=37.1
+			myMax=100
+			myColour=QColor('#FF1700')
+			mySymbol8=QgsSymbolV2.defaultSymbol(warstwa.geometryType())
+			mySymbol8.setColor(myColour)
+			myRange8=QgsRendererRangeV2(myMin, myMax, mySymbol8, myLabel)
+			myRangeList.append(myRange8)
+			
+			myRenderer=QgsGraduatedSymbolRendererV2('', myRangeList)
+			myRenderer.setMode(QgsGraduatedSymbolRendererV2.Custom)
+			myRenderer.setClassAttribute("Temp")
+			warstwa.setRendererV2(myRenderer)
+			plotno.refresh()
+			warstwa.updateExtents()

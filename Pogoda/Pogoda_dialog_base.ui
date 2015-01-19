@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Prognoza pogody</string>
+   <string>Pogodynka</string>
   </property>
   <widget class="QDialogButtonBox" name="button_box">
    <property name="geometry">
@@ -40,19 +40,6 @@
    </property>
    <property name="selectionMode">
     <enum>QAbstractItemView::ExtendedSelection</enum>
-   </property>
-  </widget>
-  <widget class="QLabel" name="label">
-   <property name="geometry">
-    <rect>
-     <x>130</x>
-     <y>30</y>
-     <width>141</width>
-     <height>21</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Wybór województw</string>
    </property>
   </widget>
   <widget class="QPushButton" name="przycisk">
@@ -101,7 +88,20 @@
     </font>
    </property>
    <property name="text">
-    <string>Zapis obrazu</string>
+    <string>Zapis warstwy</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label">
+   <property name="geometry">
+    <rect>
+     <x>130</x>
+     <y>30</y>
+     <width>141</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Wybór województw</string>
    </property>
   </widget>
  </widget>

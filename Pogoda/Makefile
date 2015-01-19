@@ -1,9 +1,9 @@
 #/***************************************************************************
 # Pogoda
 #
-# Wtyczka z prognoza pogody
+# Ta wtyczka pokazuje aktualna pogode.
 #							 -------------------
-#		begin				: 2015-01-07
+#		begin				: 2015-01-18
 #		git sha				: $Format:%H$
 #		copyright			: (C) 2015 by Ela Lasota
 #		email				: elcialas@gmail.com
@@ -38,17 +38,17 @@ LOCALES =
 # translation
 SOURCES = \
 	__init__.py \
-	Pogoda2.py \
-	Pogoda2_dialog.py
+	Pogoda.py \
+	Pogoda_dialog.py
 
 PLUGINNAME = Pogoda
 
 PY_FILES = \
-	Pogoda2.py \
-	Pogoda2_dialog.py \
+	Pogoda.py \
+	Pogoda_dialog.py \
 	__init__.py
 
-UI_FILES = Pogoda2_dialog_base.ui
+UI_FILES = Pogoda_dialog_base.ui
 
 EXTRAS = icon.png metadata.txt
 

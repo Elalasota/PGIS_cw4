@@ -1,7 +1,7 @@
 Plugin Builder Results
 
 Your plugin Pogoda was created in:
-    /home/elasota/Dokumenty/Pogoda
+    /home/elasota/.qgis2/Pogoda
 
 Your QGIS plugin directory is located at:
     /home/elasota/.qgis2/python/plugins
@@ -17,7 +17,7 @@ What's Next:
 
   * Test the plugin by enabling it in the QGIS plugin manager
 
-  * Customize it by editing the implementation file: ``Pogoda2.py``
+  * Customize it by editing the implementation file: ``Pogoda.py``
 
   * Create your own custom icon, replacing the default icon.png
 

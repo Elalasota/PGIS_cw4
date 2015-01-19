@@ -9,14 +9,14 @@
 """
 
 __author__ = 'elcialas@gmail.com'
-__date__ = '2015-01-07'
+__date__ = '2015-01-18'
 __copyright__ = 'Copyright 2015, Ela Lasota'
 
 import unittest
 
 from PyQt4.QtGui import QDialogButtonBox, QDialog
 
-from Pogoda2_dialog import PogodaDialog
+from Pogoda_dialog import PogodaDialog
 
 from utilities import get_qgis_app
 QGIS_APP = get_qgis_app()

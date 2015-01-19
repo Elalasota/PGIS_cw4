@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 """
 /***************************************************************************
- PogodaDialog
+ Pogoda
                                  A QGIS plugin
- Wtyczka z prognoza pogody
+ Ta wtyczka pokazuje aktualna pogode.
                              -------------------
-        begin                : 2015-01-07
-        git sha              : $Format:%H$
+        begin                : 2015-01-18
         copyright            : (C) 2015 by Ela Lasota
         email                : elcialas@gmail.com
+        git sha              : $Format:%H$
  ***************************************************************************/
 
 /***************************************************************************
@@ -19,23 +19,17 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
+ This script initializes the plugin, making it known to QGIS.
 """
 
-import os
 
-from PyQt4 import QtGui, uic
+# noinspection PyPep8Naming
+def classFactory(iface):  # pylint: disable=invalid-name
+    """Load Pogoda class from file Pogoda.
 
-FORM_CLASS, _ = uic.loadUiType(os.path.join(
-    os.path.dirname(__file__), 'Pogoda2_dialog_base.ui'))
-
-
-class PogodaDialog(QtGui.QDialog, FORM_CLASS):
-    def __init__(self, parent=None):
-        """Constructor."""
-        super(PogodaDialog, self).__init__(parent)
-        # Set up the user interface from Designer.
-        # After setupUI you can access any designer object by doing
-        # self.<objectname>, and you can use autoconnect slots - see
-        # http://qt-project.org/doc/qt-4.8/designer-using-a-ui-file.html
-        # #widgets-and-dialogs-with-auto-connect
-        self.setupUi(self)
+    :param iface: A QGIS interface instance.
+    :type iface: QgsInterface
+    """
+    #
+    from .Pogoda import Pogoda
+    return Pogoda(iface)

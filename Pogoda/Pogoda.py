@@ -371,7 +371,7 @@ class Pogoda:
 			myRange1=QgsRendererRangeV2(myMin, myMax, mySymbol1, myLabel)
 			myRangeList.append(myRange1)
 
-			myLabel='Pizga jak szatan'
+			myLabel='Rece zamarzaja'
 			myMin=-14.9
 			myMax=0
 			myColour=QColor('#4A85FF')
